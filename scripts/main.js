@@ -26,11 +26,9 @@ require(["game", "player", "building"], function(Game, Player, BuildingSetup){
                 {x: 15, y: 50, w: 35, h: 50, offsetX: 6, offsetY: 0},
                 {x: 51, y: 51, w: 49, h: 49, offsetX: 0, offsetY: 0},
                 {x: 51, y: 51, w: 49, h: 49, offsetX: 0, offsetY: 0},
-    //            {x: 101, y: 50, w: 49, h: 40, offsetX: 0, offsetY: 0},
-    //            {x: 101, y: 50, w: 49, h: 40, offsetX: 0, offsetY: 0},
+                {x: 101, y: 50, w: 49, h: 40, offsetX: 0, offsetY: 0},
                 {x: 151, y: 52, w: 47, h: 39, offsetX: 0, offsetY: 0},
                 {x: 151, y: 52, w: 47, h: 39, offsetX: 0, offsetY: 0},
-                {x: 201, y: 55, w: 49, h: 44, offsetX: 0, offsetY: 0},
                 {x: 201, y: 55, w: 49, h: 44, offsetX: 0, offsetY: 0}
             ],
             falling: [

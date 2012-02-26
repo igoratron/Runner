@@ -1,51 +1,98 @@
 define(function() {
+    
+    var SceneGenerator = function(canvas, buildingFactories) {
+        var MAX_HEIGHT_DIFF = 50;
+        var MAX_GAP = 40;
+        
+        var objects = [];
+        var buildingHeight = Math.round(Math.random() * (canvas.h - 100));
+        var sceneWidth = 0;
+
+        init();
+
+        function init() {
+            buildingHeight = (Math.round(Math.random() * buildingHeight) + MAX_HEIGHT_DIFF) % (canvas.h - 100);
+            var building = new buildingFactories[0](buildingHeight);
+            var gap = Math.round(Math.random() * MAX_GAP);
+            objects.push(building);
+            sceneWidth += building.getBoundingBox().w;
+            objects.push(gap);
+            sceneWidth += gap;
+            
+            if(canvas.w > sceneWidth - building.getBoundingBox().w)
+                setTimeout(init,1);
+        }
+
+        this.refreshScene = function(sceneX) {
+            if(objects[0].getBoundingBox().w + sceneX < 0) {
+
+                //reuse building object
+                var firstB = objects.shift();
+                buildingHeight = (Math.round(Math.random() * buildingHeight) + MAX_HEIGHT_DIFF) % (canvas.h - 100);
+                sceneX += firstB.getBoundingBox().w;
+                firstB.randomiseBuilding(buildingHeight);
+                objects.push(firstB);
+            
+                var gap = Math.round(Math.random() * MAX_GAP);
+                objects.push(gap);
+                sceneX += objects.shift();
+            }
+            return sceneX;
+        };
+        
+        this.drawScene = function(ctx, sceneX) {
+            var x = this.refreshScene(sceneX);
+            
+            objects.forEach(function(obj) {
+                if(typeof obj === "number") {
+                    x += obj;
+                } else if(obj.draw) {
+                    var box = obj.getBoundingBox();
+                
+                    obj.draw(ctx, x, (canvas.h - box.h));
+                    x += box.w;
+                }
+            });
+        };
+        
+        this.getObjects = function() {
+            return objects;
+        };
+            
+    };
+    
     var Game = function(player, buildingFactory) {
         var GRAVITY = 10;
         
-        var ctx = document.querySelector("#canvas").getContext("2d");
-        var canvas = {w: 600, h: 300};
-        
-        var timeStamp = Date.now();
-        
         var keyPressed = function(event) {
-            if(event.keyCode == 32) { //space
-                player.jump();
+            switch(event.keyCode) {
+                case 32: //space
+                    player.jump();
+                    break;
             }
         };
         document.querySelector("body").addEventListener("keydown", keyPressed, false);
         
-        var buildings = [];
-        var buildingHeight = Math.round(Math.random() * (canvas.h - 100));
-        for(var i = 0; i < 4; i ++) {
-            var h = Math.round(Math.random() * buildingHeight) + 50;
-            h %= (canvas.h - 100);
-            buildingHeight = h;
-            buildings.push(new buildingFactory[0](buildingHeight));
-        }
+        var ctx = document.querySelector("#canvas").getContext("2d");
+        var canvas = {w: 600, h: 300};
+        var timeStamp = Date.now();
+        
+        var sg = new SceneGenerator(canvas, buildingFactory);
         
         var playerY = 0;
-        var buildingX = 0;
-
+        var sceneX = 0;
+        
         function gameLoop() {
-            var delay = Date.now() - timeStamp;
-            player.setPace(0.3*(delay)/33);
+            sceneX = sg.refreshScene(sceneX);
             ctx.clearRect(0, 0, canvas.w, canvas.h);
+            sg.drawScene(ctx, sceneX);
             
-            var bx = buildingX;
-            
-            buildings.forEach(function(building) {
-                var box = building.getBoundingBox();
-                //fixme
-                if(!box.by)
-                    box.by = Math.random()*(50);
-                    
-                building.draw(ctx, bx, (canvas.h - box.h) + box.by);
-                bx += box.w;
-            });
-            
+            var delay = Date.now() - timeStamp;
+            drawFPS(ctx, delay);
+            player.setPace(0.3*(delay)/33);
             player.draw(ctx, 10, playerY);
             
-            var platform = hitTest(player, buildings);
+            var platform = hitTest(player, sg.getObjects());
             if(!player.isJumping()) {
                 if(platform === false) {
                     player.setState("falling");
@@ -56,44 +103,44 @@ define(function() {
                 }
             }
             
+            //player fell of screen
             if(playerY > canvas.h) {
                 playerY = 0;
-                buildingX = 0;
+                sceneX = 0;
             }
             
-            buildingX -= 3;
+            sceneX -= 3;
             timeStamp = Date.now();
-            
-            if(buildings[0].getBoundingBox().w + buildingX < 0) {
-                var firstB = buildings.shift();
-                var h = Math.round(Math.random() * buildingHeight) + 50;
-                h %= (canvas.h - 100);
-                buildingHeight = h;
-                firstB.randomiseBuilding(buildingHeight);
-                console.log("building " + buildingHeight);
-                buildings.push(firstB);
-                buildingX = 0;
-            }
         }
         
-        function hitTest(player, buildings) {
+        function hitTest(player, objects) {
             var p = player.getBoundingBox();
             var ret = false;
             
-            buildings.some(function(building) {
-                var b = building.getBoundingBox();
-                
-                if ((p.x + p.w - b.x >= 0) && //right
-                    (p.x - (b.x + b.w) <= 0) && //left
-                    (p.y + p.h - b.y >= -5) && //bottom
-                    (p.y - (b.y + b.h) <= 0)) { //top
-                    ret = {y: b.y - p.h};
-                    return true;
-                } else
+            objects.some(function(obj) {
+                if(obj.getBoundingBox) {
+                    var b = obj.getBoundingBox();
+                    
+                    if ((p.x + p.w - b.x >= 0) && //right
+                        (p.x - (b.x + b.w) <= 0) && //left
+                        (p.y + p.h - b.y >= -5) && //bottom
+                        (p.y - (b.y + b.h) <= 0)) { //top
+                            ret = {y: b.y - p.h};
+                            return true;
+                    } else {
+                        return false;
+                    }
+                }
                 return false;
             });
 
             return ret;
+        }
+        
+        function drawFPS(ctx, delay) {
+            var text = "fps: " + Math.round(1000/delay);
+            var len = ctx.measureText(text);
+            ctx.fillText(text, 599 - len.width, 10);
         }
         
         //start game loop

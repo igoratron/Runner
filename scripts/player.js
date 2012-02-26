@@ -6,7 +6,7 @@ define(function() {
     };
     
     var Player = function(image, spriteParams) {
-        var JUMP_HEIGHT = 50;
+        var JUMP_HEIGHT = 70;
         this.pace = 0;
         this.image = image;
         this.sprite = spriteParams;
@@ -64,8 +64,6 @@ define(function() {
         };
         
         this.setState = function(state) {
-            if(this.state !== state)
-                console.log(state);
             this.state = state;
         };
         

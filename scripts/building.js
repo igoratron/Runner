@@ -61,7 +61,7 @@ define(function() {
                 x: 0,
                 y: 0,
                 w: buildingWidth,
-                h: buildingHeight
+                h: desiredHeight
             };
             
             this.plan = plan;
