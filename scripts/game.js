@@ -92,15 +92,13 @@ define(function() {
             player.setPace(0.3*(delay)/33);
             player.draw(ctx, 10, playerY);
             
-            var platform = hitTest(player, sg.getObjects());
-            if(!player.isJumping()) {
-                if(platform === false) {
-                    player.setState("falling");
-                    playerY += GRAVITY;
-                } else if(platform.y) {
-                    player.setState("running");
-                    playerY = platform.y + 1;
-                }
+            var colliding = hitTest(player, sg.getObjects());
+            if(colliding.length === 0) {
+                player.setState("falling");
+                playerY += GRAVITY;
+            } else {
+                player.setState("running");
+                playerY = colliding[0].y - player.getBoundingBox().h;
             }
             
             //player fell of screen
@@ -115,26 +113,23 @@ define(function() {
         
         function hitTest(player, objects) {
             var p = player.getBoundingBox();
-            var ret = false;
-            
-            objects.some(function(obj) {
-                if(obj.getBoundingBox) {
-                    var b = obj.getBoundingBox();
-                    
-                    if ((p.x + p.w - b.x >= 0) && //right
-                        (p.x - (b.x + b.w) <= 0) && //left
-                        (p.y + p.h - b.y >= -5) && //bottom
-                        (p.y - (b.y + b.h) <= 0)) { //top
-                            ret = {y: b.y - p.h};
+            var bbox = objects.map(function(obj) { 
+                if(obj.getBoundingBox)
+                    return obj.getBoundingBox(); 
+            });
+            return bbox.filter(function(box) {
+                if(box) {
+                    if ((p.x + p.w - box.x >= 0) && //right
+                        (p.x - (box.x + box.w) <= 0) && //left
+                        (p.y + p.h - box.y >= 0) && //bottom
+                        (p.y - (box.y + box.h) <= 0)) { //top
                             return true;
                     } else {
                         return false;
                     }
                 }
                 return false;
-            });
-
-            return ret;
+            });            
         }
         
         function drawFPS(ctx, delay) {

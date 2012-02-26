@@ -17,7 +17,7 @@ require(["game", "player", "building"], function(Game, Player, BuildingSetup){
                 {x: 115, y: 1, w: 36, h: 49, offsetX: 0, offsetY: 0},
                 {x: 172, y: 2, w: 28, h: 48, offsetX: 8, offsetY: 0},
                 {x: 219, y: 2, w: 30, h: 48, offsetX: 6, offsetY: 0},
-                {x: 264, y: 3, w: 36, h: 48, offsetX: 0, offsetY: 0},
+                {x: 264, y: 2, w: 36, h: 48, offsetX: 0, offsetY: 0},
                 {x: 315, y: 1, w: 35, h: 49, offsetX: 1, offsetY: 0},
                 {x: 374, y: 3, w: 26, h: 47, offsetX: 10, offsetY: 0}
             ],

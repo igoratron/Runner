@@ -34,9 +34,9 @@ define(function() {
                                  x + sprite.offsetX, y - sprite.offsetY, sprite.w, sprite.h);
             
             this.boundingBox.x = x + sprite.offsetX;
-            this.boundingBox.y = y - sprite.offsetY;
-            this.boundingBox.w = 26;//sprite.w;
-            this.boundingBox.h = sprite.h;
+            this.boundingBox.y = y - sprite.offsetY - (sprite.h - this.boundingBox.h);
+            this.boundingBox.w = sprite.w - sprite.offsetX;
+            this.boundingBox.h = sprite.h - sprite.offsetY;
             
             if(Math.round(spriteIterator + this.pace) < this.sprite[this.state].length) {
                 spriteIterator += this.pace;
