@@ -15,17 +15,32 @@ define(function() {
         document.querySelector("body").addEventListener("keydown", keyPressed, false);
         
         var buildings = [];
-        buildings.push(new buildingFactory[0](100));
+        var buildingHeight = Math.round(Math.random() * (canvas.h - 100));
+        for(var i = 0; i < 4; i ++) {
+            var h = Math.round(Math.random() * buildingHeight) + 50;
+            h %= (canvas.h - 100);
+            buildingHeight = h;
+            buildings.push(new buildingFactory[0](buildingHeight));
+        }
         
         var playerY = 0;
+        var buildingX = 0;
 
         function gameLoop() {
             var delay = Date.now() - timeStamp;
             player.setPace(0.3*(delay)/33);
             ctx.clearRect(0, 0, canvas.w, canvas.h);
-                                
+            
+            var bx = buildingX;
+            
             buildings.forEach(function(building) {
-                building.draw(ctx, 0, 200);
+                var box = building.getBoundingBox();
+                //fixme
+                if(!box.by)
+                    box.by = Math.random()*(50);
+                    
+                building.draw(ctx, bx, (canvas.h - box.h) + box.by);
+                bx += box.w;
             });
             
             player.draw(ctx, 10, playerY);
@@ -43,9 +58,22 @@ define(function() {
             
             if(playerY > canvas.h) {
                 playerY = 0;
+                buildingX = 0;
             }
-
+            
+            buildingX -= 3;
             timeStamp = Date.now();
+            
+            if(buildings[0].getBoundingBox().w + buildingX < 0) {
+                var firstB = buildings.shift();
+                var h = Math.round(Math.random() * buildingHeight) + 50;
+                h %= (canvas.h - 100);
+                buildingHeight = h;
+                firstB.randomiseBuilding(buildingHeight);
+                console.log("building " + buildingHeight);
+                buildings.push(firstB);
+                buildingX = 0;
+            }
         }
         
         function hitTest(player, buildings) {

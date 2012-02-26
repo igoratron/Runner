@@ -21,10 +21,12 @@ define(function() {
                 y -= JUMP_HEIGHT * Math.sin(spriteIterator * (1 / animLen) * Math.PI);
                 
                 if(Math.round(spriteIterator) === animLen) {
-                    console.log("jump finished");
                     this.setState(state.FALLING);
                     spriteIterator = 0;
                 }
+            }
+            if(this.isFalling()) {
+                spriteIterator = 0;
             }
             
             var sprite = this.sprite[this.state][Math.round(spriteIterator)];
@@ -44,7 +46,7 @@ define(function() {
         };
         
         this.jump = function() {
-            if(!this.isJumping()) {
+            if(!this.isJumping() && !this.isFalling()) {
                 this.setState(state.JUMPING);
                 spriteIterator = 0;
             }
