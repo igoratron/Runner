@@ -6,7 +6,6 @@ define(function() {
     };
     
     var Player = function(image, spriteParams) {
-        var JUMP_HEIGHT = 70;
         this.pace = 0;
         this.image = image;
         this.sprite = spriteParams;
@@ -15,34 +14,47 @@ define(function() {
         this.state = state.FALLING;
         var spriteIterator = 0;
         
-        this.draw = function(ctx, x, y) {
+        this.x = 10;
+        this.y = 0;
+        
+        var oldY = 0;
+        
+        this.draw = function(ctx) {
             if(this.isJumping()) {
                 var animLen = this.sprite[state.JUMPING].length - 1;
-                y -= JUMP_HEIGHT * Math.sin(spriteIterator * (1 / animLen) * Math.PI);
                 
                 if(Math.round(spriteIterator) === animLen) {
                     this.setState(state.FALLING);
-                    spriteIterator = 0;
                 }
             }
             if(this.isFalling()) {
                 spriteIterator = 0;
             }
-            
+
             var sprite = this.sprite[this.state][Math.round(spriteIterator)];
             ctx.drawImage(image, sprite.x, sprite.y, sprite.w, sprite.h, 
-                                 x + sprite.offsetX, y - sprite.offsetY, sprite.w, sprite.h);
+                                 this.x + sprite.offsetX, this.y - sprite.offsetY, sprite.w, sprite.h);
             
-            this.boundingBox.x = x + sprite.offsetX;
-            this.boundingBox.y = y - sprite.offsetY - (sprite.h - this.boundingBox.h);
+            this.boundingBox.x = this.x + sprite.offsetX;
+            this.boundingBox.y = this.y - sprite.offsetY - (sprite.h - this.boundingBox.h);
             this.boundingBox.w = sprite.w - sprite.offsetX;
             this.boundingBox.h = sprite.h - sprite.offsetY;
             
+            if(!this.isJumping()) {
+                if(Math.abs(oldY - (this.boundingBox.y + this.boundingBox.h)) < 1) {
+                    this.setState(state.RUNNING);
+                } else if(oldY - (this.boundingBox.y + this.boundingBox.h) < -1) {
+                    this.setState(state.FALLING);
+                }
+            }
+            
             if(Math.round(spriteIterator + this.pace) < this.sprite[this.state].length) {
                 spriteIterator += this.pace;
-            } else if(this.isRunning()) {
+            } else if(this.isRunning()) { //rewind if running
                 spriteIterator = 0;
             }
+            
+            oldY = this.boundingBox.y + this.boundingBox.h;
         };
         
         this.jump = function() {
