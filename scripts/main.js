@@ -56,7 +56,28 @@ require(["game", "player", "building"], function(Game, Player, BuildingSetup){
             ]
         });
         
-        var game = new Game(player, [building]);
+        var collapsing = BuildingSetup(res.building, {
+            roof: [
+                {x: 553, y: 0, w: 200, h: 50}
+            ],
+            side: {
+                left: [
+                    {x: 752, y: 0, w: 48, h: 50},
+                    {x: 802, y: 0, w: 48, h: 50}
+                ],
+                right: [
+                    {x: 852, y: 0, w: 48, h: 50},
+                    {x: 902, y: 0, w: 48, h: 50}
+                ]
+            },
+            windows: [
+                {x: 950, y: 0, w: 52, h: 50},
+                {x: 1000, y: 0, w: 52, h: 50},
+                {x: 1043, y: 0, w: 52, h: 50}
+            ]
+        });
+        
+        var game = new Game(player, [building, collapsing]);
     }
     
     window.onload = start;    

@@ -14,7 +14,7 @@ define(function() {
         this.state = state.FALLING;
         var spriteIterator = 0;
         
-        this.x = 10;
+        this.x = 50;
         this.y = 0;
         
         var oldY = 0;
@@ -49,7 +49,7 @@ define(function() {
             }
             
             if(Math.round(spriteIterator + this.pace) < this.sprite[this.state].length) {
-                spriteIterator += this.pace;
+                    spriteIterator += this.pace;
             } else if(this.isRunning()) { //rewind if running
                 spriteIterator = 0;
             }

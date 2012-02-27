@@ -2,7 +2,7 @@ define(function() {
     
     var SceneGenerator = function(canvas, buildingFactories) {
         var MAX_HEIGHT_DIFF = 50;
-        var MAX_GAP = 40;
+        var MAX_GAP = 30;
         
         var objects = [];
         var buildingHeight = Math.round(Math.random() * (canvas.h - 100));
@@ -14,7 +14,8 @@ define(function() {
 
         function init() {
             buildingHeight = (Math.round(Math.random() * buildingHeight) + MAX_HEIGHT_DIFF) % (canvas.h - 100);
-            var building = new buildingFactories[0](buildingHeight);
+            var factory = Math.random() < 0.6 ? 0 : 1;
+            var building = new buildingFactories[factory](buildingHeight);
             var gap = Math.round(Math.random() * MAX_GAP);
             objects.push(building);
             sceneWidth += building.getBoundingBox().w;
@@ -35,7 +36,7 @@ define(function() {
                 firstB.randomiseBuilding(buildingHeight);
                 objects.push(firstB);
             
-                var gap = Math.round(Math.random() * MAX_GAP);
+                var gap = Math.round(Math.random() * MAX_GAP * pace);
                 objects.push(gap);
                 sceneX += objects.shift();
             }
@@ -92,8 +93,7 @@ define(function() {
             } else {
                 var p = player.getBoundingBox();
                 var box = colliding[0];
-                console.log("B "+Math.abs(p.y + p.h - box.y));
-                console.log("R "+p.x + p.w - box.x);
+
                 if ((p.x + p.w - box.x >= 0) && //right
                     (Math.abs(p.y + p.h - box.y) <= 10)){  //bottom
                         runningY = colliding[0].y - p.h;
@@ -168,7 +168,13 @@ define(function() {
             player.draw(ctx);
                                     
             timeStamp = time;
-            window.webkitRequestAnimationFrame(gameLoop);
+            raf(gameLoop);
+        }
+        
+        function raf(callback) {
+            var fn = window.requestAnimationFrame || window.mozRequestAnimationFrame ||  
+                        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame; 
+            fn(callback);
         }
         
         
