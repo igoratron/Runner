@@ -8,7 +8,8 @@ define(function() {
         var buildingHeight = Math.round(Math.random() * (canvas.h - 100));
         var sceneWidth = 0;
         var sceneX = 0;
-    
+        var pace = 2;
+        
         init();
 
         function init() {
@@ -54,13 +55,16 @@ define(function() {
                 }
             });
             
-            sceneX -= 2;
+            sceneX -= pace;
         };
         
         this.getObjects = function() {
             return objects;
         };
-            
+        
+        this.setPace = function(p) {
+            pace = p;
+        };            
     };
     
     var PhysicsSimulator = function(player, objects) {
@@ -148,6 +152,7 @@ define(function() {
         };
         document.querySelector("body").addEventListener("keydown", keyPressed, false);
         
+        var pace = 2;
         function gameLoop(time) {
             ctx.clearRect(0, 0, canvas.w, canvas.h);
             sg.drawScene(ctx);
@@ -156,11 +161,14 @@ define(function() {
             var delay = time - timeStamp;
             drawFPS(ctx, delay);
 
-            player.setPace(0.3*(delay)/33);
+            //player.setPace(0.3*delay/33);
+            player.setPace(pace/10*0.75);
+            sg.setPace(pace);
+            pace += 0.001;
             player.draw(ctx);
                                     
             timeStamp = time;
-            window.webkitRequestAnimationFrame(gameLoop)
+            window.webkitRequestAnimationFrame(gameLoop);
         }
         
         
