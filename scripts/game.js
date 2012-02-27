@@ -86,8 +86,18 @@ define(function() {
                 playerX += 0.05;
                 jumping = false;
             } else {
-                runningY = colliding[0].y - player.getBoundingBox().h;
-                playerX = 0;
+                var p = player.getBoundingBox();
+                var box = colliding[0];
+                console.log("B "+Math.abs(p.y + p.h - box.y));
+                console.log("R "+p.x + p.w - box.x);
+                if ((p.x + p.w - box.x >= 0) && //right
+                    (Math.abs(p.y + p.h - box.y) <= 10)){  //bottom
+                        runningY = colliding[0].y - p.h;
+                        playerX = 0;
+                } else {
+                    playerX += 0.05;
+                }
+                    
                 jumpAngle = 0;
             }
             
@@ -103,8 +113,7 @@ define(function() {
             var p = player.getBoundingBox();
             var bbox = objects.map(function(obj) { 
                 if(obj.getBoundingBox)
-    
-    return obj.getBoundingBox(); 
+                    return obj.getBoundingBox(); 
             });
             return bbox.filter(function(box) {
                 if(box) {
